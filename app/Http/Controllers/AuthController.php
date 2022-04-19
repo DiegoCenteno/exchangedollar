@@ -43,13 +43,13 @@ class AuthController extends Controller
         ];
     }
     public function exchange(Request $req){
-        $dat = $req->user();
-        return "hoa";
-        return (empty($req->user())) ? 'vacio' : 'lleno';
-
-    }
-    public function index(){
-        /*
+        $user = $req->user();
+        $lc = (empty($user->lc)) ? 0 : $user->lc;
+        $lc++;
+        if ($lc > 5)
+            return response()->json(['message' => 'Usuario ha excedido el límite de peticiones'], 401);
+        $user->lc = $lc;
+        $user->save();
         $response = Http::post('http://data.fixer.io/api/latest?access_key=e4d45f70cd6cb80d01fc5afe1faf0cb8&format=1');
         $body = json_decode($response->body(), true);
         $data['rates']['provider_1']['source'] = 'fixer';
@@ -62,7 +62,7 @@ class AuthController extends Controller
         $data['rates']['provider_2']['last_update'] = $databanx['bmx']['series'][0]['datos'][0]['fecha'];
         $data['rates']['provider_2']['exchange_type'] = 'MXN';
         $data['rates']['provider_2']['value'] = (float)$databanx['bmx']['series'][0]['datos'][0]['dato'];
-        $content = file_get_contents('http://dof.gob.mx/indicadores_detalle.php?cod_tipo_indicador=158&dfecha='.date('d').'%2F04%2F2022&hfecha='.date('d').'%2F04%2F2022');
+        $content = file_get_contents('http://dof.gob.mx/indicadores_detalle.php?cod_tipo_indicador=158&dfecha='.date('d').'%2F'.date('m').'%2F2022&hfecha='.date('d').'%2F'.date('m').'%2F2022');
         $aux1 = explode('DOLAR', $content);
         preg_match_all('!\d+!', $aux1[2], $aux2);
         $dof_value = (float)($aux2[0][0].'.'.$aux2[0][1]);
@@ -71,6 +71,5 @@ class AuthController extends Controller
         $data['rates']['provider_3']['exchange_type'] = 'MXN';
         $data['rates']['provider_3']['value'] = $dof_value;
         return response()->json($data);
-        */
     }
 }
